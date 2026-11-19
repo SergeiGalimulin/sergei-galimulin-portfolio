@@ -1,0 +1,151 @@
+/* Общие данные и поведение для всех страниц.
+   Проекты хранятся в localStorage браузера (демо без сервера);
+   если там пусто — берутся исходные 9 работ из SEED. */
+(function () {
+  'use strict';
+
+  var CATEGORIES = [
+    { slug: 'realism', name: '3D Characters Realism' },
+    { slug: 'stylized', name: '3D Characters Stylized' },
+    { slug: 'grooming', name: 'Grooming' },
+    { slug: 'hard-surface', name: 'Hard Surface Design' },
+    { slug: 'motion-graphics', name: 'Motion Graphics' },
+    { slug: 'creatures', name: 'Creatures' }
+  ];
+  var LABELS = ['Front', 'Back', 'Side', 'Detail', 'Turntable', 'Process', 'Before / After'];
+
+  var ANIME = 'This project focuses on creating high-quality 3D anime character models with unique designs, detailed features, and appealing proportions. Each character is carefully modeled to achieve a clean, polished 3D appearance while maintaining the distinctive anime art style.\n\nThe project includes character modeling, facial details, hairstyle design, clothing, and overall 3D presentation, resulting in a visually attractive model suitable for animation, rendering, games, or digital showcases.';
+
+  function img(file, w, h) { return { kind: 'image', src: 'assets/img/' + file, w: w, h: h, label: '' }; }
+  function vid(file, w, h) { return { kind: 'video', src: 'assets/video/' + file, w: w, h: h, label: 'Turntable' }; }
+
+  var SEED = [
+    { id: 'anime-warrior-collectible', title: 'Anime Warrior Collectible Figure', category: 'stylized', description: 'Created a detailed full-body anime warrior collectible figure in Blender, featuring custom clothing, armor, realistic textures, dynamic effects, and a decorative display base.', media: [img('p1_1.jpg', 1305, 1400), img('p1_2.jpg', 1400, 788)] },
+    { id: 'anime-female-warrior', title: 'Anime Warrior Collectible Figure', category: 'stylized', description: 'Designed a detailed full-body anime female warrior collectible figure in Blender, featuring intricate hair, layered clothing, ornate armor, a dynamic standing pose, a katana, and a decorative display base.', media: [img('p2_1.jpg', 933, 1400), img('p2_2.jpg', 1400, 933)] },
+    { id: 'anime-warrior-modeling', title: 'Anime Warrior Collectible Figure — 3D Modeling', category: 'stylized', description: 'Created a detailed full-body anime warrior collectible figure in Blender, featuring a dynamic standing pose, spiky hairstyle, intricate clothing, detailed armor, and a katana. The model includes a decorative display base and carefully crafted front and back details, making it suitable for 3D printing and collectible production.', media: [img('p3_1.jpg', 1400, 933), img('p3_2.jpg', 1400, 933), img('p3_3.jpg', 933, 1400)] },
+    { id: 'anime-figure', title: '3D Anime Figure', category: 'stylized', description: ANIME, media: [img('p4_1.jpg', 1400, 787), vid('p4.mp4', 1920, 1920)] },
+    { id: 'anime-figure-modeling', title: '3D Anime Figure Modeling', category: 'stylized', description: ANIME, media: [img('p5_1.jpg', 1400, 787), vid('p5.mp4', 1920, 1920)] },
+    { id: 'female-warrior', title: '3D Anime Figure', category: 'stylized', description: 'Detailed 3D character modeling of a female warrior featuring intricate armor, braided hairstyle, leather clothing, spiked accessories, boots, and a custom weapon. Includes highly refined front and back details with clean topology, suitable for rendering, animation, and 3D printing.', media: [img('p6_1.jpg', 1400, 933), img('p6_2.jpg', 1400, 933), img('p6_3.jpg', 1400, 933)] },
+    { id: 'cat-model', title: '3D Cat Model', category: 'creatures', description: 'A detailed 3D cat sculpture featuring a smooth, rounded body, defined pointed ears, a gently curved tail, and refined facial and body contours. Designed with clean geometry and a polished finish, suitable for 3D printing.', media: [img('p7_1.jpg', 1400, 913), img('p7_2.jpg', 1400, 803), img('p7_3.jpg', 1400, 886)] },
+    { id: 'fantasy-dragon', title: 'Fantasy Dragon — 3D Sculpting & Character Modeling', category: 'creatures', description: 'A highly detailed fantasy dragon sculpture featuring an impressive creature design with enormous wings, layered scales, sharp horns, powerful claws, and intricate anatomical details. The dragon is posed on a beautifully sculpted rocky base with decorative ornamental elements, creating a premium collectible statue.\n\nThe project focuses on detailed organic sculpting, realistic textures, complex creature anatomy, and fine surface detailing. Designed for fantasy collectibles, tabletop displays, character art, and high-quality 3D printing.', media: [img('p8_1.jpg', 1400, 839), img('p8_2.jpg', 1400, 933), img('p8_3.jpg', 1400, 933)] },
+    { id: 'realistic-male', title: 'Realistic Male Character — 3D Modeling & Sculpting', category: 'realism', description: 'A highly detailed 3D character sculpt featuring a muscular male physique with realistic human anatomy, well-defined muscles, detailed facial features, and carefully sculpted hair. The model showcases front, side, and back views to demonstrate accurate proportions, anatomical structure, and attention to detail.\n\nCreated with a focus on realistic body proportions, clean sculpting, muscle definition, and professional character presentation. Ideal for character design, game development, animation, and 3D printing projects.', media: [img('p9_1.jpg', 1400, 1050), img('p9_2.jpg', 1400, 1050), img('p9_3.jpg', 1400, 1050)] }
+  ].map(function (p) { return Object.assign({ software: '', published: true }, p); });
+
+  var KEY = 'sg.projects.v1';
+
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var list = JSON.parse(raw);
+        if (Array.isArray(list)) return list;
+      }
+    } catch (e) { /* хранилище недоступно — работаем на исходных данных */ }
+    return clone(SEED);
+  }
+
+  // Бросает исключение при переполнении хранилища — вызывающий показывает ошибку.
+  function save(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
+
+  function reset() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+  function publicProjects() { return load().filter(function (p) { return p.published; }); }
+
+  function category(slug) {
+    for (var i = 0; i < CATEGORIES.length; i++) if (CATEGORIES[i].slug === slug) return CATEGORIES[i];
+    return { slug: slug, name: slug };
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Пути к файлам хранятся от корня сайта; админка лежит в /admin/ и подставляет '../'.
+  function src(path) {
+    if (/^(data:|blob:|https?:)/.test(path)) return path;
+    return (document.body.getAttribute('data-base') || '') + path;
+  }
+
+  function cover(p) {
+    for (var i = 0; i < p.media.length; i++) if (p.media[i].kind === 'image') return p.media[i];
+    return null;
+  }
+
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+  function mediaSummary(p) {
+    var imgs = p.media.filter(function (m) { return m.kind === 'image'; }).length;
+    var vids = p.media.length - imgs;
+    if (!p.media.length) return 'No media yet';
+    return plural(imgs, 'image') + (vids ? ' · ' + plural(vids, 'video') : '');
+  }
+
+  // Картинка с заглушкой: уже скачанные показываются сразу, новые мягко проявляются.
+  function revealImages(root) {
+    (root || document).querySelectorAll('img.lz:not(.on)').forEach(function (im) {
+      var box = im.closest('.ph');
+      function show() { im.classList.add('on'); if (box) box.classList.add('done'); }
+      if (im.complete && im.naturalWidth) { show(); return; }
+      im.addEventListener('load', show, { once: true });
+      im.addEventListener('error', show, { once: true });
+    });
+  }
+
+  // Шапка прячется при прокрутке вниз и сразу возвращается при прокрутке вверх.
+  function smartHeader() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+    var last = window.scrollY;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      var dy = y - last;
+      if (Math.abs(dy) < 6) return;
+      nav.classList.toggle('is-hidden', dy > 0 && y > 120);
+      last = y;
+    }, { passive: true });
+  }
+
+  function param(name) { return new URLSearchParams(location.search).get(name); }
+
+  var ICON = {
+    arrowUpRight: '<svg class="arr" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>',
+    chevronLeft: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+    chevronRight: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+    play: '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>',
+    close: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+    box: '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>'
+  };
+
+  // Карточка работы для главной и портфолио.
+  function cardHTML(p, opts) {
+    opts = opts || {};
+    var c = cover(p);
+    var hasVideo = p.media.some(function (m) { return m.kind === 'video'; });
+    var ratio = opts.natural && c ? 'aspect-ratio:' + c.w + ' / ' + c.h + ';' : '';
+    return '<a class="card' + (opts.cls ? ' ' + opts.cls : '') + '" href="project.html?id=' + encodeURIComponent(p.id) + '"' +
+      (opts.delay != null ? ' style="animation-delay:' + opts.delay + 's"' : '') + '>' +
+      '<div class="card-media ph" style="' + ratio + '">' +
+      (c ? '<img class="lz" src="' + esc(src(c.src)) + '" alt="' + esc(p.title) + '" loading="lazy" decoding="async">' : '') +
+      (hasVideo ? '<span class="card-video">' + ICON.play + 'Video</span>' : '') +
+      '<span class="card-shade" aria-hidden="true"></span>' +
+      '<span class="card-info"><span class="card-cat">' + esc(category(p.category).name) + '</span>' +
+      '<span class="card-name">' + esc(p.title) + '</span></span>' +
+      '</div></a>';
+  }
+
+  window.SG = {
+    CATEGORIES: CATEGORIES, LABELS: LABELS, SEED: SEED,
+    load: load, save: save, reset: reset, publicProjects: publicProjects,
+    category: category, esc: esc, src: src, cover: cover, plural: plural, mediaSummary: mediaSummary,
+    revealImages: revealImages, param: param, ICON: ICON, cardHTML: cardHTML
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    smartHeader();
+    revealImages();
+  });
+})();
