@@ -1,16 +1,15 @@
-/* Общие данные и поведение для всех страниц.
-   Проекты хранятся в localStorage браузера (демо без сервера);
-   если там пусто — берутся исходные 9 работ из SEED. */
+/* Общие данные и поведение для всех страниц. Список работ — SEED ниже. */
 (function () {
   'use strict';
 
   var CATEGORIES = [
     { slug: 'realism', name: '3D Characters Realism' },
     { slug: 'stylized', name: '3D Characters Stylized' },
-    { slug: 'grooming', name: 'Grooming' },
+    { slug: 'creatures', name: 'Creatures' },
+    { slug: 'grooming-xgen', name: 'Grooming — XGen' },
+    { slug: 'grooming-hair-cards', name: 'Grooming — Hair Cards' },
     { slug: 'hard-surface', name: 'Hard Surface Design' },
-    { slug: 'motion-graphics', name: 'Motion Graphics' },
-    { slug: 'creatures', name: 'Creatures' }
+    { slug: 'motion-graphics', name: 'Motion Graphics' }
   ];
   var LABELS = ['Front', 'Back', 'Side', 'Detail', 'Turntable', 'Process', 'Before / After'];
 
@@ -31,25 +30,10 @@
     { id: 'realistic-male', title: 'Realistic Male Character — 3D Modeling & Sculpting', category: 'realism', description: 'A highly detailed 3D character sculpt featuring a muscular male physique with realistic human anatomy, well-defined muscles, detailed facial features, and carefully sculpted hair. The model showcases front, side, and back views to demonstrate accurate proportions, anatomical structure, and attention to detail.\n\nCreated with a focus on realistic body proportions, clean sculpting, muscle definition, and professional character presentation. Ideal for character design, game development, animation, and 3D printing projects.', media: [img('p9_1.jpg', 1400, 1050), img('p9_2.jpg', 1400, 1050), img('p9_3.jpg', 1400, 1050)] }
   ].map(function (p) { return Object.assign({ software: '', published: true }, p); });
 
-  var KEY = 'sg.projects.v1';
-
   function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
-  function load() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) {
-        var list = JSON.parse(raw);
-        if (Array.isArray(list)) return list;
-      }
-    } catch (e) { /* хранилище недоступно — работаем на исходных данных */ }
-    return clone(SEED);
-  }
-
-  // Бросает исключение при переполнении хранилища — вызывающий показывает ошибку.
-  function save(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
-
-  function reset() { try { localStorage.removeItem(KEY); } catch (e) {} }
+  // Работы берутся только из списка SEED выше — одинаково для всех посетителей.
+  function load() { return clone(SEED); }
 
   function publicProjects() { return load().filter(function (p) { return p.published; }); }
 
@@ -139,7 +123,7 @@
 
   window.SG = {
     CATEGORIES: CATEGORIES, LABELS: LABELS, SEED: SEED,
-    load: load, save: save, reset: reset, publicProjects: publicProjects,
+    load: load, publicProjects: publicProjects,
     category: category, esc: esc, src: src, cover: cover, plural: plural, mediaSummary: mediaSummary,
     revealImages: revealImages, param: param, ICON: ICON, cardHTML: cardHTML
   };

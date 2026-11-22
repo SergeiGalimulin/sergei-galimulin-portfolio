@@ -19,6 +19,7 @@
       chips.innerHTML = items.map(function (c) {
         var n = c.slug === ALL ? projects.length : projects.filter(function (p) { return p.category === c.slug; }).length;
         var on = c.slug === active;
+        if (!n && !on) return '';
         return '<button class="chip' + (on ? ' is-active' : '') + '" type="button" data-slug="' + c.slug + '" aria-pressed="' + on + '">' +
           SG.esc(c.name) + '<span class="n">' + n + '</span></button>';
       }).join('');

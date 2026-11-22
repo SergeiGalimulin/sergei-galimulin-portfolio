@@ -328,3 +328,31 @@ textarea.input { height: auto; padding: 14px 16px; line-height: 1.6; resize: ver
 @media (prefers-reduced-motion: reduce) {
   *, ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; transition: none !important; }
 }
+
+/* Resume / Contact */
+.cv { margin-top: 48px; border-top: 1px solid var(--line); }
+.cv-sec { display: grid; grid-template-columns: minmax(140px, 260px) 1fr; gap: 24px; padding: 40px 0; border-bottom: 1px solid var(--line); }
+.cv-body { max-width: 860px; color: var(--muted); line-height: 1.65; }
+.cv-body p { margin: 0 0 14px; }
+.cv-lead { color: var(--text); font-size: clamp(20px, 2.2vw, 28px); line-height: 1.35; letter-spacing: -.02em; }
+.cv-list { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.cv-list li::marker { color: var(--accent); }
+.cv-chips { margin-top: 0; }
+.cv-chips .chip { cursor: default; }
+.cv-job { padding-bottom: 36px; }
+.cv-job + .cv-job { padding-top: 36px; border-top: 1px solid var(--line); }
+.cv-job-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.cv-job h3 { margin: 0; color: var(--text); font-weight: 600; font-size: 20px; letter-spacing: -.02em; }
+.cv-co { margin: 4px 0 0; }
+.cv-date { margin: 0; font-size: 12px; color: var(--subtle); }
+.ct-row { display: grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.ct-row:last-child { border: 0; }
+.ct-val { color: var(--text); font-size: clamp(18px, 2vw, 24px); letter-spacing: -.02em; }
+.ct-val a { color: inherit; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+.ct-val a:hover { color: var(--accent); }
+@media (max-width: 720px) { .cv-sec, .ct-row { grid-template-columns: 1fr; gap: 12px; } }
+.cv-co a { color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.cv-co a:hover { color: var(--accent); }
+.copy { all: unset; cursor: pointer; color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+.copy:hover { color: var(--accent); }
+.copy small { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); margin-left: 8px; text-decoration: none; display: inline-block; }
