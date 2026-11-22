@@ -19,6 +19,8 @@
     var media = p.media;
     var n = media.length;
     var cur = 0;
+    var bd = p.breakdown || [];
+    var lbItems = media, lbCur = 0;
     document.title = p.title + ' — SergeiGalimulin';
 
     var prev = list[(idx - 1 + list.length) % list.length];
@@ -56,11 +58,15 @@
       '<section class="project-media" aria-label="Project media">' +
       (n ? '<div class="viewer ph" id="viewer"></div>' : '<div class="viewer" style="aspect-ratio:4/3;color:#6b6b68">' + I.box + '</div>') +
       (n > 1 ? '<div class="thumbs" id="thumbs">' + media.map(function (m, k) { return thumbHTML(m, k, 'thumb'); }).join('') + '</div>' : '') +
+      (bd.length ? '<div class="breakdown"><p class="eyebrow">Breakdown</p><div class="tiles">' + bd.map(function (m, k) {
+        return '<button class="tile" type="button" data-tile="' + k + '" aria-label="Open ' + SG.esc(m.label) + ' full screen"><img src="' + SG.esc(SG.src(m.src)) + '" alt="' + SG.esc(p.title + ' — ' + m.label) + '" loading="lazy"><span class="tile-cap mono">' + SG.esc(m.label) + '</span></button>';
+      }).join('') + '</div></div>' : '') +
       '</section>' +
       '<aside class="project-aside">' +
       '<p class="eyebrow">No. ' + String(idx + 1).padStart(2, '0') + ' — ' + SG.esc(SG.category(p.category).name) + '</p>' +
       '<h1>' + SG.esc(p.title) + '</h1>' +
       (p.description ? '<p class="project-desc">' + SG.esc(p.description) + '</p>' : '') +
+      (p.links && p.links.length ? '<p class="project-links">' + p.links.map(function (l) { return '<a class="btn btn-ghost btn-sm" href="' + SG.esc(l.url) + '" target="_blank" rel="noopener">' + SG.esc(l.label) + ' ↗</a>'; }).join(' ') + '</p>' : '') +
       '<dl class="specs">' + specs + '</dl>' +
       '</aside></div>' +
       (showNav ? '<nav class="pn-grid" aria-label="More projects">' + pnHTML(prev, 'prev') + pnHTML(next, 'next') + '</nav>' : '');
@@ -103,19 +109,27 @@
         b.classList.toggle('is-active', k === cur);
         b.setAttribute('aria-pressed', k === cur);
       });
-      if (!lb.hidden) renderLightbox();
+      if (!lb.hidden && lbItems === media) { lbCur = cur; renderLightbox(); }
     }
 
     function renderLightbox() {
-      var m = media[cur];
-      document.getElementById('lb-count').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0');
+      var ln = lbItems.length;
+      var m = lbItems[lbCur];
+      document.getElementById('lb-count').textContent = String(lbCur + 1).padStart(2, '0') + ' / ' + String(ln).padStart(2, '0');
       lbStage.innerHTML = mediaEl(m, 'fade-in') +
-        (n > 1 ? '<button class="lb-btn lb-arrow lb-prev" type="button" aria-label="Previous" data-act="prev">' + I.chevronLeft + '</button>' +
+        (ln > 1 ? '<button class="lb-btn lb-arrow lb-prev" type="button" aria-label="Previous" data-act="prev">' + I.chevronLeft + '</button>' +
           '<button class="lb-btn lb-arrow lb-next" type="button" aria-label="Next" data-act="next">' + I.chevronRight + '</button>' : '');
-      lbStrip.innerHTML = n > 1 ? media.map(function (mm, k) { return thumbHTML(mm, k, 'lb-thumb' + (k === cur ? ' is-active' : '')); }).join('') : '';
+      lbStrip.innerHTML = ln > 1 ? lbItems.map(function (mm, k) { return thumbHTML(mm, k, 'lb-thumb' + (k === lbCur ? ' is-active' : '')); }).join('') : '';
     }
 
     function goTo(k) {
+      if (!lb.hidden) {
+        var ln = lbItems.length;
+        lbCur = (k + ln) % ln;
+        if (lbItems === media) { cur = lbCur; var pv = viewer.querySelector('video'); if (pv) pv.pause(); renderViewer(false); }
+        else renderLightbox();
+        return;
+      }
       var nk = (k + n) % n;
       if (nk === cur) return;
       cur = nk;
@@ -125,7 +139,9 @@
     }
 
     var lastFocus = null;
-    function openLb() {
+    function openLb(items, k) {
+      lbItems = items || media;
+      lbCur = k == null ? cur : k;
       lastFocus = document.activeElement;
       lb.hidden = false;
       document.documentElement.style.overflow = 'hidden';
@@ -142,21 +158,22 @@
     }
 
     document.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-act], [data-go]');
+      var t = e.target.closest('[data-act], [data-go], [data-tile]');
       if (!t) return;
+      if (t.hasAttribute('data-tile')) { openLb(bd, +t.getAttribute('data-tile')); return; }
       if (t.hasAttribute('data-go')) { goTo(+t.getAttribute('data-go')); return; }
       var a = t.getAttribute('data-act');
       if (a === 'open') openLb();
       else if (a === 'close') closeLb();
-      else if (a === 'prev') goTo(cur - 1);
-      else if (a === 'next') goTo(cur + 1);
+      else if (a === 'prev') goTo((lb.hidden ? cur : lbCur) - 1);
+      else if (a === 'next') goTo((lb.hidden ? cur : lbCur) + 1);
     });
 
     document.addEventListener('keydown', function (e) {
       if (lb.hidden) return;
       if (e.key === 'Escape') { e.preventDefault(); closeLb(); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(cur + 1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(cur - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(lbCur + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(lbCur - 1); }
       else if (e.key === 'Tab') {
         // Удерживаем фокус внутри полноэкранного просмотра.
         var f = Array.prototype.filter.call(lb.querySelectorAll('button:not([tabindex="-1"]), video[controls]'), function (x) { return x.offsetParent !== null; });
@@ -173,7 +190,7 @@
       if (tx == null) return;
       var dx = e.changedTouches[0].clientX - tx;
       tx = null;
-      if (Math.abs(dx) > 50) goTo(dx < 0 ? cur + 1 : cur - 1);
+      if (Math.abs(dx) > 50) goTo(dx < 0 ? lbCur + 1 : lbCur - 1);
     });
 
     renderViewer(false);

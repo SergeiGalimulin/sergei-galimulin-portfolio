@@ -173,7 +173,10 @@ button { font: inherit; }
 .zoom { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: zoom-in; }
 .counter { position: absolute; left: 16px; top: 16px; height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 12px; background: #000; border: 1px solid var(--line-strong); }
 .viewer-full { position: absolute; right: 16px; top: 16px; }
-.viewer-arrows { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; }
+.viewer-arrows { position: absolute; inset: 0; pointer-events: none; }
+.viewer-arrows .icon-btn { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: auto; }
+.viewer-arrows .icon-btn:first-child { left: 16px; }
+.viewer-arrows .icon-btn:last-child { right: 16px; }
 .thumbs { display: flex; gap: 12px; overflow-x: auto; padding: 4px; }
 .thumb { position: relative; flex: 0 0 auto; width: 104px; height: 78px; padding: 0; border-radius: 14px; overflow: hidden; border: 0; background: #141414; cursor: pointer; opacity: .5; outline: 2px solid transparent; outline-offset: 3px; transition: opacity .2s, outline-color .2s; }
 .thumb:hover { opacity: 1; }
@@ -356,3 +359,13 @@ textarea.input { height: auto; padding: 14px 16px; line-height: 1.6; resize: ver
 .copy { all: unset; cursor: pointer; color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
 .copy:hover { color: var(--accent); }
 .copy small { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); margin-left: 8px; text-decoration: none; display: inline-block; }
+
+/* Breakdown tiles */
+.breakdown { margin-top: 24px; display: grid; gap: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tile { position: relative; padding: 0; border: 0; border-radius: 18px; overflow: hidden; background: #141414; cursor: pointer; aspect-ratio: 16 / 9; }
+.tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.tile:hover img { transform: scale(1.03); }
+.tile-cap { position: absolute; left: 12px; bottom: 12px; padding: 5px 10px; border-radius: 999px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: rgba(0,0,0,.65); color: #fff; }
+@media (max-width: 520px) { .tiles { grid-template-columns: 1fr; } }
+.project-links { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
