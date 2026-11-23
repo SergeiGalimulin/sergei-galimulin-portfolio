@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var HERO_ID = 'fantasy-dragon';
-  var FEATURED = ['anime-warrior-collectible', 'adam-scott-likeness', 'female-warrior'];
+  var FEATURED = ['flame-boss-nowa-online-world', 'adam-scott-likeness', 'rock-boss-nowa-online-world'];
 
   document.addEventListener('DOMContentLoaded', function () {
     var list = SG.publicProjects().filter(function (p) { return SG.cover(p); });
