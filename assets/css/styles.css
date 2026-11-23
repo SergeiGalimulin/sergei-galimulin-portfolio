@@ -369,3 +369,11 @@ textarea.input { height: auto; padding: 14px 16px; line-height: 1.6; resize: ver
 .tile-cap { position: absolute; left: 12px; bottom: 12px; padding: 5px 10px; border-radius: 999px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: rgba(0,0,0,.65); color: #fff; }
 @media (max-width: 520px) { .tiles { grid-template-columns: 1fr; } }
 .project-links { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Portrait */
+.brand { display: flex; align-items: center; gap: 12px; }
+.avatar { display: block; width: 40px; height: 40px; flex: none; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--line-strong); transition: box-shadow .2s, transform .2s; }
+.avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.avatar:hover, .avatar:focus-visible { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.05); }
+.cv-photo { display: block; width: 140px; height: 140px; border-radius: 50%; object-fit: cover; margin: 0 0 24px; box-shadow: 0 0 0 1px var(--line-strong); }
+@media (max-width: 520px) { .brand { gap: 8px; } .avatar { width: 34px; height: 34px; } .cv-photo { width: 112px; height: 112px; } }
