@@ -25,8 +25,21 @@
       }).join('');
     }
 
+    // «All Projects»: по одной работе из каждой категории по кругу, чтобы сетка выглядела разнообразнее.
+    function interleave(list) {
+      var groups = SG.CATEGORIES.map(function (c) {
+        return list.filter(function (p) { return p.category === c.slug; });
+      }).filter(function (g) { return g.length; });
+      var out = [], i = 0, left = list.length;
+      while (left > 0) {
+        groups.forEach(function (g) { if (g[i]) { out.push(g[i]); left--; } });
+        i++;
+      }
+      return out;
+    }
+
     function renderGrid(active, animate) {
-      var visible = active === ALL ? projects : projects.filter(function (p) { return p.category === active; });
+      var visible = active === ALL ? interleave(projects) : projects.filter(function (p) { return p.category === active; });
       count.textContent = active === ALL
         ? SG.plural(projects.length, 'project')
         : visible.length + ' of ' + SG.plural(projects.length, 'project');
